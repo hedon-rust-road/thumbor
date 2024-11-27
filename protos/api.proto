@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package abi; // This name will be used as compilation result, prost will generate: abi.rs
+
+// ImageSpec is an ordered array, server processes according to the order of specs
+message ImageSpec { repeated Spec specs = 1; }
+
+// Process image resize
+message Resize {
+  uint32 width = 1;
+  uint32 height = 2;
+
+  enum ResizeType {
+    NORMAL = 0;
+    SEAM_CARVE = 1;
+  }
+
+  ResizeType rtype = 3;
+
+  enum SampleFilter {
+    UNDEFINED = 0;
+    NEAREST = 1;
+    TRIANGLE = 2;
+    CATMULL_ROM = 3;
+    GAUSSIAN = 4;
+    LANCZOS3 = 5;
+  }
+
+  SampleFilter filter = 4;
+}
+
+// Process image crop
+message Crop {
+  uint32 x1 = 1;
+  uint32 y1 = 2;
+  uint32 x2 = 3;
+  uint32 y2 = 4;
+}
+
+// Process horizontal flip
+message Fliph {}
+// Process vertical flip
+message Flipv {}
+// Process contrast
+message Contrast { float contrast = 1; }
+// Process filter
+message Filter {
+  enum Filter {
+    UNSPECIFIED = 0;
+    OCEANIC = 1;
+    ISLANDS = 2;
+    MARINE = 3;
+    // more: https://docs.rs/photon-rs/0.3.1/photon_rs/filters/fn.filter.html
+  }
+  Filter filter = 1;
+}
+
+// Process watermark
+message Watermark {
+  uint32 x = 1;
+  uint32 y = 2;
+}
+
+// A spec can contain one of the above processing methods
+message Spec {
+  oneof data {
+    Resize resize = 1;
+    Crop crop = 2;
+    Flipv flipv = 3;
+    Fliph fliph = 4;
+    Contrast contrast = 5;
+    Filter filter = 6;
+    Watermark watermark = 7;
+  }
+}
